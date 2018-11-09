@@ -1,7 +1,8 @@
 package main
 
 import "fmt"
+import "github.com/bitterpilot/string"
 
 func main() {
-	fmt.Printf("hello, world\n")
+	fmt.Println(string.Reverse("hello, world"))
 }
