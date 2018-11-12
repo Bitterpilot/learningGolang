@@ -29,14 +29,14 @@ func main() {
 		topSpeedKpH:   220}
 
 	/* you can also just pass the values into the struct without naming them
-	bCar := car{50500, 65535, 250, 180}
+	   bCar := car{50500, 65535, 250, 180}
 
-	the most likly use case is probally something like this
-	cCar := car{acceleratePedalSensor,
-				breakPedalSensor,
-				steeringWheelSensor,
-				topSpeedKpH:220}
-	where you are parssing variables into the struct
+	   the most likly use case is probally something like this
+	   cCar := car{acceleratePedalSensor,
+	   			breakPedalSensor,
+	   			steeringWheelSensor,
+	   			topSpeedKpH:220}
+	   where you are parssing variables into the struct
 	*/
 	fmt.Println(aCar.acceleratePedal)
 	fmt.Println(aCar.speedKpH())
