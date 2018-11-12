@@ -12,7 +12,12 @@ type breakfastMenu struct {
 }
 
 type name struct {
-	Nam string `xml:"name"`
+	Name string `xml:"name"`
+}
+
+// Converts struct to string
+func (n name) String() string{
+	return fmt.Sprintf(n.Name)
 }
 
 func main() {
