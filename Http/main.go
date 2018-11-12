@@ -16,7 +16,7 @@ type name struct {
 }
 
 // Converts struct to string
-func (n name) String() string{
+func (n name) String() string {
 	return fmt.Sprintf(n.Name)
 }
 
@@ -29,6 +29,8 @@ func main() {
 
 	var s breakfastMenu
 	xml.Unmarshal(bytes, &s)
-
-	fmt.Println(s.Name)
+	
+	for _, name := range s.Name {
+		fmt.Printf("%s\n", name)
+	}
 }
