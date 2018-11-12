@@ -4,6 +4,9 @@ import (
 	"fmt"
 )
 
+const uSixteenBitMax float64 = 65535
+const kphtomphMultiplier float64 = 1.60934
+
 type car struct {
 	acceleratePedal uint16 // unsigned(as in no negitives -) int
 	breakPedal      uint16 // min 0 max 65535
@@ -11,8 +14,16 @@ type car struct {
 	topSpeedKpH     float64
 }
 
+// value reciver method
+func (c car) speedKpH() float64 {
+	return float64(c.acceleratePedal) * (c.topSpeedKpH / uSixteenBitMax)
+}
+func (c car) speedMpH() float64 {
+	return float64(c.acceleratePedal) * (c.topSpeedKpH / uSixteenBitMax / kphtomphMultiplier)
+}
+
 func main() {
-	aCar := car{acceleratePedal: 2234,
+	aCar := car{acceleratePedal: 65535,
 		breakPedal:    0,
 		steeringWheel: 6000,
 		topSpeedKpH:   220}
@@ -27,9 +38,7 @@ func main() {
 				topSpeedKpH:220}
 	where you are parssing variables into the struct
 	*/
-	fmt.Println(aCar)
 	fmt.Println(aCar.acceleratePedal)
-	fmt.Println(aCar.breakPedal)
-	fmt.Println(aCar.steeringWheel)
-	fmt.Println(aCar.topSpeedKpH)
+	fmt.Println(aCar.speedKpH())
+	fmt.Println(aCar.speedMpH())
 }
