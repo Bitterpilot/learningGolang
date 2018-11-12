@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
+	"net/http"
 	"strconv"
 )
 
@@ -23,13 +23,16 @@ type Coin struct {
 }
 
 func main() {
-	jsonFile, _ := os.Open("sample.json")
-	defer jsonFile.Close()
-
-
+	// jsonFile, _ := os.Open("sample.json")
+	// defer jsonFile.Close()
+	resp, err := http.Get("https://api.coinmarketcap.com/v2/listings/")
+	if err != nil {
+		println(err)
+	}
+	defer resp.Body.Close()
 	fmt.Println("Successfully Opened sample.json")
 
-	byteValue, _ := ioutil.ReadAll(jsonFile)
+	byteValue, _ := ioutil.ReadAll(resp.Body)
 
 	var coins Coins
 
