@@ -14,12 +14,19 @@ type car struct {
 	topSpeedKpH     float64
 }
 
-// value reciver method
+// Value reciver methods
+// makes a copy of the thing you pass to it
 func (c car) speedKpH() float64 {
 	return float64(c.acceleratePedal) * (c.topSpeedKpH / uSixteenBitMax)
 }
 func (c car) speedMpH() float64 {
 	return float64(c.acceleratePedal) * (c.topSpeedKpH / uSixteenBitMax / kphtomphMultiplier)
+}
+
+// Pointer Reciver method
+// modifies the thing you pass to it
+func (c *car) newTopSpeedKpH(newSpeed float64) {
+	c.topSpeedKpH = newSpeed
 }
 
 func main() {
@@ -39,6 +46,9 @@ func main() {
 	   where you are parssing variables into the struct
 	*/
 	fmt.Println(aCar.acceleratePedal)
+	fmt.Println(aCar.speedKpH())
+	fmt.Println(aCar.speedMpH())
+	aCar.newTopSpeedKpH(500)
 	fmt.Println(aCar.speedKpH())
 	fmt.Println(aCar.speedMpH())
 }
