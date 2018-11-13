@@ -4,12 +4,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"html/template"
 	"io/ioutil"
 	"net/http"
 )
 
-// Coins struct which contains an array of data
-type Coins struct {
+// Data struct which contains an array of data
+type Data struct {
 	Coins []Coin `json:"data"`
 }
 
@@ -22,20 +23,26 @@ type Coin struct {
 	WebsiteSlug string `json:"website_slug"`
 }
 
-func findCoinByID(ID int, set Coins) (int, string, string, string, error) {
-	for i := 0; i < len(set.Coins); i++ {
-		if set.Coins[i].ID == ID {
-			return set.Coins[i].ID,
-				set.Coins[i].Symbol,
-				set.Coins[i].Name,
-				set.Coins[i].WebsiteSlug,
+func findCoinByID(ID int, s Data) (int, string, string, string, error) {
+	for i := 0; i < len(s.Coins); i++ {
+		if s.Coins[i].ID == ID {
+			return s.Coins[i].ID,
+				s.Coins[i].Symbol,
+				s.Coins[i].Name,
+				s.Coins[i].WebsiteSlug,
 				nil
 		}
 	}
 	return -1, "", "", "", errors.New("Can't Find Coin ID")
 }
 
-func main() {
+type indexPage struct {
+	Title      string
+	Discrption string
+	List       string
+}
+
+func indexHandler(w http.ResponseWriter, r *http.Request) {
 	resp, err := http.Get("https://api.coinmarketcap.com/v2/listings/")
 	if err != nil {
 		println(err)
@@ -44,10 +51,10 @@ func main() {
 
 	byteValue, _ := ioutil.ReadAll(resp.Body)
 
-	var coins Coins
+	var coins Data
 	json.Unmarshal(byteValue, &coins)
 
-	for i := 0; i < 16; i++ {
+	for i := 0; i < 5; i++ {
 		d, s, n, w, err := findCoinByID(i, coins)
 		if err != nil {
 			fmt.Println("No details For this ID")
@@ -55,4 +62,15 @@ func main() {
 			fmt.Println("details:", d, s, n, w)
 		}
 	}
+	
+	_, s, _, _, _ := findCoinByID(2, coins)
+
+	page := indexPage{"List of Crypto Currencies", "grid", s}
+	t, err := template.ParseFiles("templates/index.html")
+	t.Execute(w, page)
+}
+
+func main() {
+	http.HandleFunc("/", indexHandler)
+	http.ListenAndServe(":8080", nil)
 }
