@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -21,16 +22,17 @@ type Coin struct {
 	WebsiteSlug string `json:"website_slug"`
 }
 
-func findCoinByID(ID int, set Coins) (int, string, string, string) {
+func findCoinByID(ID int, set Coins) (int, string, string, string, error) {
 	for i := 0; i < len(set.Coins); i++ {
 		if set.Coins[i].ID == ID {
 			return set.Coins[i].ID,
 				set.Coins[i].Symbol,
 				set.Coins[i].Name,
-				set.Coins[i].WebsiteSlug
+				set.Coins[i].WebsiteSlug,
+				nil
 		}
 	}
-	return 0, "", "", ""
+	return -1, "", "", "", errors.New("Can't Find Coin ID")
 }
 
 func main() {
@@ -45,5 +47,12 @@ func main() {
 	var coins Coins
 	json.Unmarshal(byteValue, &coins)
 
-	fmt.Println(findCoinByID(5, coins))
+	for i := 0; i < 16; i++ {
+		d, s, n, w, err := findCoinByID(i, coins)
+		if err != nil {
+			fmt.Println("No details For this ID")
+		} else {
+			fmt.Println("details:", d, s, n, w)
+		}
+	}
 }
