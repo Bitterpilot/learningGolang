@@ -39,7 +39,7 @@ func findCoinByID(ID int, s Data) (int, string, string, string, error) {
 type indexPage struct {
 	Title      string
 	Discrption string
-	List       string
+	List       []Coin
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
@@ -62,10 +62,8 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Println("details:", d, s, n, w)
 		}
 	}
-	
-	_, s, _, _, _ := findCoinByID(2, coins)
 
-	page := indexPage{"List of Crypto Currencies", "grid", s}
+	page := indexPage{"List of Crypto Currencies", "ordered by ID ... maybe", coins.Coins}
 	t, err := template.ParseFiles("templates/index.html")
 	t.Execute(w, page)
 }
