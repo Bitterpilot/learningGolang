@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -38,7 +37,6 @@ func findCoinByID(ID int, s Data) (int, string, string, string, error) {
 
 type indexPage struct {
 	Title      string
-	Discrption string
 	List       []Coin
 }
 
@@ -63,7 +61,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	page := indexPage{"List of Crypto Currencies", "ordered by ID ... maybe", coins.Coins}
+	page := indexPage{"List of Crypto Currencies", coins.Coins}
 	t, err := template.ParseFiles("templates/index.html")
 	t.Execute(w, page)
 }
