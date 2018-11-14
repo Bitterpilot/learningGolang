@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 )
 
 // Data struct which contains an array of data
@@ -42,11 +43,19 @@ type CurrencyGeneric struct {
 	PctChange7d  float64 `json:"percent_change_7d"`
 }
 
-func currancyParser(c Coin) {
-	// m := make(map[string]CurrencyGeneric)
-	fmt.Println(c.Quotes)
-	// json.Unmarshal(c.Quotes, &m)
-	// fmt.Println(m)
+func currancyParser(in interface{}) {
+	iface := in
+	v := reflect.ValueOf(iface)
+	for _, key := range v.MapKeys() {
+		val := v.MapIndex(key)
+		fmt.Println(key.Interface())
+		fmt.Println(val.Interface())
+
+		valTyp := reflect.TypeOf(val.Interface()).Kind()
+		if valTyp != reflect.Float64 {
+			currancyParser(val.Interface())
+		}
+	}
 
 }
 
@@ -62,7 +71,7 @@ func main() {
 	// structure string
 	// convert string
 
-	url := "https://api.coinmarketcap.com/v2/ticker/?convert=EUR&start=101&limit=10&sort=id&structure=array"
+	url := "https://api.coinmarketcap.com/v2/ticker/?convert=AUD&start=101&limit=10&sort=id&structure=array"
 	resp, err := http.Get(url)
 	if err != nil {
 		println(err)
@@ -80,5 +89,5 @@ func main() {
 	// tm := time.Unix(coins.Coins[1].LastUpdate, 0)
 	// fmt.Println(tm)
 
-	currancyParser(coins.Coins[0])
+	currancyParser(coins.Coins[0].Quotes)
 }
