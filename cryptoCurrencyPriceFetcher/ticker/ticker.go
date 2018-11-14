@@ -44,17 +44,28 @@ type CurrencyGeneric struct {
 }
 
 func currancyParser(in interface{}) {
-	iface := in
-	v := reflect.ValueOf(iface)
-	for _, key := range v.MapKeys() {
-		val := v.MapIndex(key)
+	valIn := reflect.ValueOf(in)
+	for _, key := range valIn.MapKeys() {
+		val := valIn.MapIndex(key)
 		fmt.Println(key.Interface())
-		fmt.Println(val.Interface())
 
 		valTyp := reflect.TypeOf(val.Interface()).Kind()
 		if valTyp != reflect.Float64 {
 			currancyParser(val.Interface())
+		} else if valTyp == reflect.Float64 {
+			fmt.Println(val.Interface())
 		}
+		// switch g := valIn.(type) {
+		// case map[string]interface {}:
+		// 	currancyParser(val.Interface())	
+		// case float64:
+		// 	fmt.Println(val.Interface())
+		// default:
+		// 	fmt.Printf("\n\n\nunexpected type %T", g)
+		// }
+
+
+
 	}
 
 }
