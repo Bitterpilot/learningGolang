@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"html/template"
 	"io/ioutil"
 	"net/http"
@@ -36,8 +37,8 @@ func findCoinByID(ID int, s Data) (int, string, string, string, error) {
 }
 
 type indexPage struct {
-	Title      string
-	List       []Coin
+	Title string
+	List  []Coin
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {

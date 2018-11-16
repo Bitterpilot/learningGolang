@@ -57,14 +57,12 @@ func currancyParser(in interface{}) {
 		}
 		// switch g := valIn.(type) {
 		// case map[string]interface {}:
-		// 	currancyParser(val.Interface())	
+		// 	currancyParser(val.Interface())
 		// case float64:
 		// 	fmt.Println(val.Interface())
 		// default:
 		// 	fmt.Printf("\n\n\nunexpected type %T", g)
 		// }
-
-
 
 	}
 
