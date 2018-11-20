@@ -1,102 +1,144 @@
 package main
 
 import (
+	"reflect"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"reflect"
+	"strings"
 )
 
-// Data struct which contains an array of data
-type Data struct {
-	Coins []Coin `json:"data"`
+const jsonStream = `{
+    "data": {
+        "278": {
+            "id": 278,
+            "name": "Quebecoin",
+            "symbol": "QBC",
+            "website_slug": "quebecoin",
+            "rank": 1583,
+            "circulating_supply": 15588776.0,
+            "total_supply": 36375376.0,
+            "max_supply": 42000000.0,
+            "quotes": {
+                "USD": {
+                    "price": 0.0030329289,
+                    "volume_24h": 15.1646447495,
+                    "market_cap": 47280.0,
+                    "percent_change_1h": -0.04,
+                    "percent_change_24h": -1.31,
+                    "percent_change_7d": -19.58
+                },
+                "AUD": {
+                    "price": 0.0041354381,
+                    "volume_24h": 20.6771902564,
+                    "market_cap": 64466.0,
+                    "percent_change_1h": -0.04,
+                    "percent_change_24h": -1.31,
+                    "percent_change_7d": -19.58
+                }
+            },
+            "last_updated": 1542438994
+        },
+        "290": {
+            "id": 290,
+            "name": "BlueCoin",
+            "symbol": "BLU",
+            "website_slug": "bluecoin",
+            "rank": 1284,
+            "circulating_supply": 574683675.0,
+            "total_supply": 574683675.0,
+            "max_supply": null,
+            "quotes": {
+                "USD": {
+                    "price": 0.0013786041,
+                    "volume_24h": 1.7232550852,
+                    "market_cap": 792261.0,
+                    "percent_change_1h": -0.04,
+                    "percent_change_24h": -1.31,
+                    "percent_change_7d": -15.18
+                },
+                "AUD": {
+                    "price": 0.0018797446,
+                    "volume_24h": 2.3496807109,
+                    "market_cap": 1080259.0,
+                    "percent_change_1h": -0.04,
+                    "percent_change_24h": -1.31,
+                    "percent_change_7d": -15.18
+                }
+            },
+            "last_updated": 1542438997
+        }
+    },
+    "metadata": {
+        "timestamp": 1542438264,
+        "num_cryptocurrencies": 2081,
+        "error": null
+    }
+}`
+
+type lvl1 struct {
+	Data     interface{} `json:"data"`
+	Metadata lvl2M       `json:"metadata"`
 }
 
-// Coin struct which contains the id, name, symbol
-// and slug of a coin
-type Coin struct {
-	ID          int         `json:"id"`
-	Name        string      `json:"name"`
-	Symbol      string      `json:"symbol"`
-	WebsiteSlug string      `json:"website_slug"`
-	Rank        int         `json:"rank"`
-	CirSupply   float64     `json:"circulating_supply"`
-	AvalSupply  float64     `json:"total_supply"`
-	MaxSupply   float64     `json:"max_supply"`
-	Quotes      interface{} `json:"quotes"`
-	LastUpdate  int64       `json:"last_updated"`
+type lvl2D struct {
+	ID                int    `json:"id"`
+	Name              string `json:"name"`
+	Symbol            string `json:"symbol"`
+	WebsiteSlug       string `json:"website_slug"`
+	Rank              int    `json:"rank"`
+	CirculatingSupply int    `json:"circulating_supply"`
+	TotalSupply       int    `json:"total_supply"`
+	MaxSupply         int    `json:"max_supply"`
+	// Quotes            Info   `json:"quotes"`
+	// "USD":
+	//     "price": 0.0030329289,
+	//     "volume_24h": 15.1646447495,
+	//     "market_cap": 47280.0,
+	//     "percent_change_1h": -0.04,
+	//     "percent_change_24h": -1.31,
+	//     "percent_change_7d": -19.5
+	//  "AUD":
+	//     "price": 0.0041354381,
+	//     "volume_24h": 20.6771902564,
+	//     "market_cap": 64466.0,
+	//     "percent_change_1h": -0.04,
+	//     "percent_change_24h": -1.31,
+	//     "percent_change_7d": -19.5
+	LastUpdated int `json:"last_updated"`
 }
 
-type quote struct {
-	USD CurrencyGeneric `json:"USD"`
-	AUD CurrencyGeneric `json:"AUD"`
-}
-
-// CurrencyGeneric ...
-type CurrencyGeneric struct {
-	Price        float64 `json:"price"`
-	Volume24     float64 `json:"volume_24h"`
-	Cap          float64 `json:"market_cap"`
-	PctChange1h  float64 `json:"percent_change_1h"`
-	PctChange24h float64 `json:"percent_change_24h"`
-	PctChange7d  float64 `json:"percent_change_7d"`
-}
-
-func currancyParser(in interface{}) {
-	valIn := reflect.ValueOf(in)
-	for _, key := range valIn.MapKeys() {
-		val := valIn.MapIndex(key)
-		fmt.Println(key.Interface())
-
-		valTyp := reflect.TypeOf(val.Interface()).Kind()
-		if valTyp != reflect.Float64 {
-			currancyParser(val.Interface())
-		} else if valTyp == reflect.Float64 {
-			fmt.Println(val.Interface())
-		}
-		// switch g := valIn.(type) {
-		// case map[string]interface {}:
-		// 	currancyParser(val.Interface())
-		// case float64:
-		// 	fmt.Println(val.Interface())
-		// default:
-		// 	fmt.Printf("\n\n\nunexpected type %T", g)
-		// }
-
-	}
-
+type lvl2M struct {
+	Timestamp           int  `json:"timestamp"`
+	NumCryptocurrencies int  `json:"num_cryptocurrencies"`
+	Error               bool `json:"error"`
 }
 
 func main() {
-	// https://api.coinmarketcap.com/v2/ticker/
-	// options
-	// preface ?
-	// seperator &
-	//
-	// start int
-	// limit int
-	// sort string
-	// structure string
-	// convert string
 
-	url := "https://api.coinmarketcap.com/v2/ticker/?convert=AUD&start=101&limit=10&sort=id&structure=array"
-	resp, err := http.Get(url)
-	if err != nil {
-		println(err)
+	init := json.NewDecoder(strings.NewReader(jsonStream))
+
+	// url := "https://api.coinmarketcap.com/v2/ticker/?limit=3"
+	// resp, _ := http.Get(url)
+	// init := json.NewDecoder(resp.Body)
+	// defer resp.Body.Close()
+
+	var c lvl1
+	if err := init.Decode(&c); err != nil {
+		panic(err)
 	}
-	defer resp.Body.Close()
+	next := c.Data
+	fmt.Println("-------------------------")
+	fmt.Println(reflect.TypeOf(next))
+	fmt.Println("-------------------------")
 
-	byteValue, _ := ioutil.ReadAll(resp.Body)
+    passInterface(next)
+	newNext := next.(map[string]interface{})
+	fmt.Println(reflect.TypeOf(newNext["278"]))
+	fmt.Println("-------------------------")
+}
 
-	var coins Data
-	json.Unmarshal(byteValue, &coins)
-
-	// fmt.Println(coins.Coins[1])
-
-	// get time from last update
-	// tm := time.Unix(coins.Coins[1].LastUpdate, 0)
-	// fmt.Println(tm)
-
-	currancyParser(coins.Coins[0].Quotes)
+func passInterface(v interface{}) {
+    b, ok := v.(*[]byte)
+    fmt.Println(ok)
+    fmt.Println(b)
 }

@@ -1,54 +1,75 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"time"
 )
 
-const uSixteenBitMax float64 = 65535
-const kphtomphMultiplier float64 = 1.60934
-
-type car struct {
-	acceleratePedal uint16 // unsigned(as in no negitives -) int
-	breakPedal      uint16 // min 0 max 65535
-	steeringWheel   int16  // min -32768 max 32767
-	topSpeedKpH     float64
+type CloudWatchEvent struct {
+	Version    string            `json:"version"`
+	ID         string            `json:"id"`
+	DetailType string            `json:"detail-type"`
+	Source     string            `json:"source"`
+	AccountID  string            `json:"account"`
+	Time       time.Time         `json:"time"`
+	Region     string            `json:"region"`
+	Resources  []string          `json:"resources"`
+	Detail     CloudWatchDetails `json:"detail"`
 }
 
-// Value reciver methods
-// makes a copy of the thing you pass to it
-func (c car) speedKpH() float64 {
-	return float64(c.acceleratePedal) * (c.topSpeedKpH / uSixteenBitMax)
-}
-func (c car) speedMpH() float64 {
-	return float64(c.acceleratePedal) * (c.topSpeedKpH / uSixteenBitMax / kphtomphMultiplier)
-}
-
-// Pointer Reciver method
-// modifies the thing you pass to it
-func (c *car) newTopSpeedKpH(newSpeed float64) {
-	c.topSpeedKpH = newSpeed
+type CloudWatchDetails struct {
+	StatusCode           string `json:"StatusCode"`
+	AutoScalingGroupName string `json:"AutoScalingGroupName"`
+	ActivityID           string `json:"ActivityId"`
+	Details              struct {
+		AvailabilityZone string `json:"Availability Zone"`
+		SubnetID         string `json:"Subnet ID"`
+	} `json:"Details"`
+	RequestID     string    `json:"RequestId"`
+	EndTime       time.Time `json:"EndTime"`
+	EC2InstanceID string    `json:"EC2InstanceId"`
+	StartTime     time.Time `json:"StartTime"`
+	Cause         string    `json:"Cause"`
 }
 
 func main() {
-	aCar := car{acceleratePedal: 65535,
-		breakPedal:    0,
-		steeringWheel: 6000,
-		topSpeedKpH:   220}
+	payload := []byte(`{
+  			"version": "0",
+  			"id": "3e3c153a-8339-4e30-8c35-687ebef853fe",
+  			"detail-type": "EC2 Instance Launch Successful",
+  			"source": "aws.autoscaling",
+  			"account": "123456789012",
+  			"time": "2015-11-11T21:31:47Z",
+  			"region": "us-east-1",
+  			"resources": [
+  			  "arn:aws:autoscaling:us-east-1:123456789012:autoScalingGroup:eb56d16b-bbf0-401d-b893-d5978ed4a025:autoScalingGroupName/sampleLuanchSucASG",
+  			  "arn:aws:ec2:us-east-1:123456789012:instance/i-b188560f"
+  			],
+  			"detail": {
+  			  "StatusCode": "InProgress",
+  			  "AutoScalingGroupName": "sampleLuanchSucASG",
+  			  "ActivityId": "9cabb81f-42de-417d-8aa7-ce16bf026590",
+  			  "Details": {
+  			    "Availability Zone": "us-east-1b",
+  			    "Subnet ID": "subnet-95bfcebe"
+  			  },
+  			  "RequestId": "9cabb81f-42de-417d-8aa7-ce16bf026590",
+  			  "EndTime": "2015-11-11T21:31:47.208Z",
+  			  "EC2InstanceId": "i-b188560f",
+  			  "StartTime": "2015-11-11T21:31:13.671Z",
+  			  "Cause": "At 2015-11-11T21:31:10Z a user request created an AutoScalingGroup changing the desired capacity from 0 to 1.  At 2015-11-11T21:31:11Z an instance was started in response to a difference between desired and actual capacity, increasing the capacity from 0 to 1."
+  			}
+			}`)	
 
-	/* you can also just pass the values into the struct without naming them
-	   bCar := car{50500, 65535, 250, 180}
+	object := &CloudWatchEvent{}
 
-	   the most likly use case is probally something like this
-	   cCar := car{acceleratePedalSensor,
-	   			breakPedalSensor,
-	   			steeringWheelSensor,
-	   			topSpeedKpH:220}
-	   where you are parssing variables into the struct
-	*/
-	fmt.Println(aCar.acceleratePedal)
-	fmt.Println(aCar.speedKpH())
-	fmt.Println(aCar.speedMpH())
-	aCar.newTopSpeedKpH(500)
-	fmt.Println(aCar.speedKpH())
-	fmt.Println(aCar.speedMpH())
+	err := json.Unmarshal(payload, object)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(object.Detail.Details.AvailabilityZone)
+
 }
